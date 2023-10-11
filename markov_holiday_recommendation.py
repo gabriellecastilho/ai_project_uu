@@ -187,15 +187,27 @@ def recommend_place(user, category, city, main_table, rating_age, user_history):
 
 if __name__ == "__main__":
 
-    # Defining target user, city, and category of the page originating the recommendation
-    # Example: User 1 is visiting the page of a museum (culture) in Jakarta
-    user = 1
-    category = "Culture"
-    city = "Jakarta"
-
     # Creating main table
     main_table = create_main_table()
 
+    # Defining target user, city, and category of the page originating the recommendation
+    # Example: User 1 is visiting the page of a museum (culture) in Jakarta
+
+    available_users = main_table["User_Id"].unique()
+    user = int(input(f"""Add User ID ({available_users.min()} to {available_users.max()}): """))
+    if user not in available_users:
+        print(f"""User {user} is new. No history found.""")
+
+    available_categories = main_table["Category"].unique()
+    category = input(f"""Add Category ({", ".join(available_categories)}): """)
+    while category not in available_categories:
+        category = input(f"""Category not found.\nAdd Category ({", ".join(available_categories)}):""")
+
+    available_cities = main_table["City"].unique()
+    city = input(f"""Add City ({", ".join(available_cities)}): """)
+    while city not in available_cities:
+        city = input(f"""City not found.\nAdd City ({", ".join(available_cities)}):""")
+        
     # Creating transition matrix for target user
     transition_matrix = create_transition_matrix(user, main_table)
 
