@@ -151,7 +151,6 @@ def recommend_place(user, category, city, main_table, rating_age, user_history):
         place_id = top_place.index[0][0]
         place_name = top_place.index[0][1]
 
-
     else:
 
         # Finding the user's age range
