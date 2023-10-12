@@ -1,8 +1,3 @@
-import pandas as pd
-import numpy as np
-from itertools import permutations
-from itertools import combinations_with_replacement
-
 def create_main_table():
 
     # Loading datasets
@@ -51,7 +46,7 @@ def create_probability_table(user, main_table):
         prob_table = pd.DataFrame()
         prob_table["Category"] = main_table["Category"].unique()
         prob_table["Probability"] = 1 / prob_table.shape[0]
-    
+
     else:
 
         # Filtering main table by target user
@@ -63,6 +58,12 @@ def create_probability_table(user, main_table):
         prob_table["Avg_Rating"] =  user_table.groupby("Category")["Place_Ratings"].mean()
         prob_table.reset_index(inplace=True)
         prob_table = prob_table.rename(columns = {'index':'Category'})
+
+        # Adding categories not present in user history
+        for category in main_table["Category"].unique():
+            if category not in prob_table["Category"].unique():
+                new_row = {'Category': category, 'Count': 1, 'Avg_Rating': 1}
+                prob_table.loc[len(prob_table)] = new_row
 
         # Calculating weighted count sum of places visited by rating
         weighted_sum = (prob_table["Avg_Rating"] * prob_table["Count"]).sum()
@@ -95,6 +96,7 @@ def create_transition_matrix(user, main_table):
 
 def recommend_category(user, category, transition_matrix):
 
+    np.random.seed(42)
     # Selecting a new category based on the transition matrix probabilities
     new_category = np.random.choice(transition_matrix["Category_2"][transition_matrix["Category_1"] == category].values,
                                 replace=True,
@@ -131,7 +133,7 @@ def create_user_history(user, main_table):
 
         # Returning only the id of places visited by target user
         return user_history[user]
-
+    
 def recommend_place(user, category, city, main_table, rating_age, user_history):
 
     # Case when user doesn't have a history
@@ -163,8 +165,12 @@ def recommend_place(user, category, city, main_table, rating_age, user_history):
         options = options[options["Category"] == category]
         options = list(options["Place_Id"])
 
+        if len(options) == 0:
+            options = rating_age.sort_values("Rating", ascending=False)
+            options = list(options["Place_Id"])
+
         # Recommending best ranked place from that category and age range
-        place_id = options[0]
+        place_id = backup = options[0]
 
         # Calculate user average spending history for the category
         avg_spending = main_table["Price"][main_table["User_Id"] == user][main_table["Category"] == category].mean()
@@ -173,16 +179,37 @@ def recommend_place(user, category, city, main_table, rating_age, user_history):
         place_price = main_table["Price"][main_table["Place_Id"] == place_id].iloc[0]
 
         # Checking if the user already visited the place or if it's too expensive, if so, recommends the next place
-        while (place_id in user_history) or (place_price > 2 * avg_spending):
-            options.pop(0)
-            place_id = options[0]
-            place_price = main_table["Price"][main_table["Place_Id"] == place_id].iloc[0]
+        try:
+            while (place_id in user_history) or (place_price > 2 * avg_spending):
+                options.pop(0)
+                place_id = options[0]
+                place_price = main_table["Price"][main_table["Place_Id"] == place_id].iloc[0]
+        except:
+            place_id = backup
 
         # Find place name
         place_name = main_table["Place_Name"][main_table["Place_Id"] == place_id].iloc[0]
 
     # Returning id and name for recommended place
-    return(place_id, place_name)
+    return place_id, place_name
+
+def run_program(user, main_table, category, city):
+    # Creating transition matrix for target user
+    transition_matrix = create_transition_matrix(user, main_table)
+
+    # Recommending a category for target user
+    category = recommend_category(user, category, transition_matrix)
+
+    # Creating table with places ranking by age range
+    rating_age = create_rating_age_table(city, main_table)
+
+    # Creating list with places visited by target user
+    user_history = create_user_history(user, main_table)
+
+    # Recommending best ranked places from category, given that user hasn't visited it yet
+    place_id, place_name  = recommend_place(user, category, city, main_table, rating_age, user_history)
+
+    return category, place_id, place_name
 
 if __name__ == "__main__":
 
@@ -206,21 +233,9 @@ if __name__ == "__main__":
     city = input(f"""Add City ({", ".join(available_cities)}): """)
     while city not in available_cities:
         city = input(f"""City not found.\nAdd City ({", ".join(available_cities)}):""")
-        
-    # Creating transition matrix for target user
-    transition_matrix = create_transition_matrix(user, main_table)
 
-    # Recommending a category for target user
-    category = recommend_category(user, category, transition_matrix)
-
-    # Creating table with places ranking by age range
-    rating_age = create_rating_age_table(city, main_table)
-
-    # Creating list with places visited by target user
-    user_history = create_user_history(user, main_table)
-
-    # Recommending best ranked places from category, given that user hasn't visited it yet
-    place_id, place_name  = recommend_place(user, category, city, main_table, rating_age, user_history)
+    # Running program
+    category, place_id, place_name = run_program(user, main_table, category, city)
 
     # Printing recomendation category and place name
-    print(f"""{category}:  {place_name}""")
+    print(f"""Recommendation: {category} -  {place_name}""")
