@@ -1,3 +1,8 @@
+import pandas as pd
+import numpy as np
+from itertools import permutations
+from itertools import combinations_with_replacement
+
 def create_main_table():
 
     # Loading datasets
