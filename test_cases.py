@@ -1,5 +1,5 @@
 import numpy as np
-from top5_markov_holiday_recommendation.py import *
+from top5_markov_holiday_recommendation import *
 from sklearn.model_selection import train_test_split
 import warnings
 
