@@ -11,7 +11,7 @@ def test_1_run_program(user, category, city, main_table, train, test):
     # Creating transition matrix, recommending category, and checking user history based on train dataset
     transition_matrix = create_transition_matrix(user, train)
     new_category = recommend_category(user, category, transition_matrix)
-    user_history = create_user_history(user, train)
+    user_history = create_user_history(user, train) 
 
     # Creating table with places ranking by age range and recommending place based on test dataset
     rating_age = create_rating_age_table(city, test)
@@ -65,4 +65,4 @@ if __name__ == "__main__":
 
     n_users = int(input("Add number of users for testing: "))
     success_total, total_total, percentage = test_1_sampling(n_users)
-    print(f"""Success: {success_total}\nPercentage: {percentage * 100}""")
+    print(f"""Success: {success_total}\nTotal:{total_total}\nPercentage: {percentage * 100}""")
