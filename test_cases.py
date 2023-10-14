@@ -1,6 +1,9 @@
 import numpy as np
-from top5_markov_holiday_recommendation import *
+import pandas as pd
+from itertools import permutations
+from itertools import combinations_with_replacement
 from sklearn.model_selection import train_test_split
+from top5_markov_holiday_recommendation import *
 import warnings
 
 def test_1_run_program(user, category, city, main_table, train, test):
@@ -59,7 +62,7 @@ def test_1_sampling(n_users):
     return success_total, total_total, round(success_total/total_total, 4)
 
 if __name__ == "__main__":
+
     n_users = int(input("Add number of users for testing: "))
     success_total, total_total, percentage = test_1_sampling(n_users)
-    print(f"""Success: {success_total}
-          Percentage: {percentage * 100}""")
+    print(f"""Success: {success_total}\nPercentage: {percentage * 100}""")
