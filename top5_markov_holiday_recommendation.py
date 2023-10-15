@@ -213,7 +213,7 @@ def run_program(user, main_table, category, city):
     # Recommending best ranked places from category, given that user hasn't visited it yet
     recommended_places = recommend_place(user, new_category, city, main_table, rating_by_age, user_history)
 
-    return category, recommended_places
+    return new_category, recommended_places
 
 if __name__ == "__main__":
 
