@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from itertools import permutations
 from itertools import combinations_with_replacement
+from documentation import *
 
 def create_main_table():
 
@@ -243,3 +244,5 @@ if __name__ == "__main__":
 
     # Printing recomendation category and place name
     print(f"""\nCategory Recommended:\n{new_category}\n\nTop Recommendations:\n{recommended_places}""")
+
+    help(run_program)
