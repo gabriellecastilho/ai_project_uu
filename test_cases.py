@@ -14,8 +14,8 @@ def test_1_run_program(user, category, city, main_table, train, test):
     user_history = create_user_history(user, train) 
 
     # Creating table with places ranking by age range and recommending place based on test dataset
-    rating_age = create_rating_age_table(city, test)
-    recommended_places  = recommend_place(user, new_category, city, test, rating_age, user_history)
+    rating_by_age = create_rating_by_age_table(city, test)
+    recommended_places  = recommend_place(user, new_category, city, test, rating_by_age, user_history)
 
     return new_category, recommended_places
 

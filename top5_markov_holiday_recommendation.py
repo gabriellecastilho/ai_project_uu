@@ -115,13 +115,13 @@ def create_rating_by_age_table(city, main_table):
     rating_by_age = places_by_city[["Age_Range", "Place_Id", "Place_Name", "Category", "Place_Ratings", "Rating"]].groupby(["Age_Range", "Category",  "Place_Id", "Place_Name"]).mean().dropna()
 
     # Calculating general rating weighted by age range ratings
-    rating_by_age["Avg_Rating"] = (rating_by_age["Place_Ratings"] + rating_by_age["Rating"])/2
+    rating_by_age["Final_Rating"] = (rating_by_age["Place_Ratings"] + rating_by_age["Rating"])/2
 
     # Dropping columns that are not needed anymore
     rating_by_age = rating_by_age.drop(columns=["Place_Ratings", "Rating"])
 
     # Ranking best places by rating
-    rating_by_age = rating_by_age.sort_values(["Age_Range", "Avg_Rating"], ascending=[True, False])
+    rating_by_age = rating_by_age.sort_values(["Age_Range", "Final_Rating"], ascending=[True, False])
     rating_by_age.reset_index(inplace=True)
 
     return rating_by_age
@@ -242,4 +242,4 @@ if __name__ == "__main__":
     new_category, recommended_places = run_program(user, main_table, category, city)
 
     # Printing recomendation category and place name
-    print(f"""Top Recommendations:\n{recommended_places}""")
+    print(f"""\nCategory Recommended:\n{new_category}\n\nTop Recommendations:\n{recommended_places}""")

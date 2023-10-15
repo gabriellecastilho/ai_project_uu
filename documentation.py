@@ -77,10 +77,10 @@ It is returning the new category as string for user as next explore cetegory. it
 a category based on the user's current category and transition matrix.
 """  
 
-create_rating_age_table.__doc__ = """
+create_rating_by_age_table.__doc__ = """
 Description
 -----------
-This function is used to create_rating_age_table that aggregates and calculates the average rating
+This function is used to create_rating_by_age_table that aggregates and calculates the average rating
 of place for the specific city by categorising user age range. This table give information of popularity
 and quality of these place by age group.
 
@@ -92,7 +92,7 @@ main_table      The main table contains user reviews, location details, and rele
 
 Returns
 --------
-The function returns Pandas DataFrame rating_age_table which containg average rating of place for 
+The function returns Pandas DataFrame rating_by_age_table which containg average rating of place for 
 specific city, categorised by user age group. providing insight of popularity and quality of the
 place among different user age group.
 """  
@@ -128,7 +128,7 @@ category        The category for which user looking for recommendation.
 city            The city for which recommendations are made.
 main_table      The main table contains user reviews, location details, and relevant
                 attributes for tourism places in Indonesia.
-rating_age      rating_age table created by create_rating_age_table function.
+rating_by_age   rating_by_age table created by create_rating_by_age_table function.
 user_history    The list of place_Id based on user visited history.
 
 Returns
