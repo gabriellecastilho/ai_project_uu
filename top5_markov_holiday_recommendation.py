@@ -89,11 +89,9 @@ def create_transition_matrix(user, main_table):
     transition_matrix = pd.DataFrame(data = perm + comb, columns = ("Category_1", "Category_2"))
     transition_matrix = transition_matrix.drop_duplicates().reset_index(drop=True)
 
-    # Calculating the probability of a user to visit a category based on the category of the page he is seeing at the moment
+    # Getting the probability to visit a category
     def probability(row):
-        prob1 = prob["Probability"][prob["Category"] == row[0]].iloc[0]
-        prob2 = prob["Probability"][prob["Category"] == row[1]].iloc[0]
-        return prob1 * prob2 / prob1
+        return prob["Probability"][prob["Category"] == row[1]].iloc[0]
 
     transition_matrix["Probability"] = transition_matrix.apply(probability, axis=1)
 
@@ -108,25 +106,25 @@ def recommend_category(user, category, transition_matrix):
                                 p=transition_matrix["Probability"][transition_matrix["Category_1"] == category].values)
     return new_category
 
-def create_rating_age_table(city, main_table):
+def create_rating_by_age_table(city, main_table):
 
     # Filtering places by target city
     places_by_city = main_table[main_table["City"] == city]
 
     # Selecting the necessary columns and calculating the average rating by age range
-    rating_age = places_by_city[["Age_Range", "Place_Id", "Place_Name", "Category", "Place_Ratings", "Rating"]].groupby(["Age_Range", "Category",  "Place_Id", "Place_Name"]).mean().dropna()
+    rating_by_age = places_by_city[["Age_Range", "Place_Id", "Place_Name", "Category", "Place_Ratings", "Rating"]].groupby(["Age_Range", "Category",  "Place_Id", "Place_Name"]).mean().dropna()
 
     # Calculating general rating weighted by age range ratings
-    rating_age["Final_Rating"] = (rating_age["Place_Ratings"] + rating_age["Rating"])/2
+    rating_by_age["Avg_Rating"] = (rating_by_age["Place_Ratings"] + rating_by_age["Rating"])/2
 
     # Dropping columns that are not needed anymore
-    rating_age = rating_age.drop(columns=["Place_Ratings", "Rating"])
+    rating_by_age = rating_by_age.drop(columns=["Place_Ratings", "Rating"])
 
     # Ranking best places by rating
-    rating_age = rating_age.sort_values(["Age_Range", "Final_Rating"], ascending=[True, False])
-    rating_age.reset_index(inplace=True)
+    rating_by_age = rating_by_age.sort_values(["Age_Range", "Avg_Rating"], ascending=[True, False])
+    rating_by_age.reset_index(inplace=True)
 
-    return rating_age
+    return rating_by_age
 
 def create_user_history(user, main_table):
 
@@ -144,13 +142,13 @@ def create_user_history(user, main_table):
         # Returning only the id of places visited by target user
         return user_history[user]
     
-def recommend_place(user, new_category, city, main_table, rating_age, user_history):
+def recommend_place(user, new_category, city, main_table, rating_by_age, user_history):
 
     # Case when user doesn't have a history
     if user not in main_table["User_Id"].unique():
 
         # Sorting options for all ages by rating
-        options = rating_age.sort_values("Final_Rating", ascending=False)
+        options = rating_by_age.sort_values("Final_Rating", ascending=False)
 
         # Selecting best places from the category recommended
         options = options[options["Category"] == new_category]
@@ -168,7 +166,7 @@ def recommend_place(user, new_category, city, main_table, rating_age, user_histo
         age_range = main_table["Age_Range"][main_table["User_Id"] == user].iloc[0]
 
         # Selecting options from the same age range
-        options = rating_age[rating_age["Age_Range"] == age_range]
+        options = rating_by_age[rating_by_age["Age_Range"] == age_range]
 
         # Selecting best places from the category recommended
         options = options[options["Category"] == new_category]
@@ -176,7 +174,7 @@ def recommend_place(user, new_category, city, main_table, rating_age, user_histo
 
         # If filters generate an empty list, remove filters
         if len(options) == 0:
-            options = rating_age.sort_values("Final_Rating", ascending=False)
+            options = rating_by_age.sort_values("Final_Rating", ascending=False)
             options = list(options["Place_Id"])
 
         # Calculate user average spending history for the category
@@ -207,13 +205,13 @@ def run_program(user, main_table, category, city):
     new_category = recommend_category(user, category, transition_matrix)
 
     # Creating table with places ranking by age range
-    rating_age = create_rating_age_table(city, main_table)
+    rating_by_age = create_rating_by_age_table(city, main_table)
 
     # Creating list with places visited by target user
     user_history = create_user_history(user, main_table)
 
     # Recommending best ranked places from category, given that user hasn't visited it yet
-    recommended_places = recommend_place(user, new_category, city, main_table, rating_age, user_history)
+    recommended_places = recommend_place(user, new_category, city, main_table, rating_by_age, user_history)
 
     return category, recommended_places
 
