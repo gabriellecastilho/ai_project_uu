@@ -24,7 +24,7 @@ def test_1_success_count(user):
 
     # Creating main table and splitting train test dataset
     main_table = create_main_table()
-    train, test = train_test_split(main_table, random_state=4, test_size=0.5, stratify=main_table[["User_Id"]])
+    train, test = train_test_split(main_table, random_state=1, test_size=0.5, stratify=main_table[["User_Id"]])
 
     # Creating list of visited places in test user history
     user_history_test = create_user_history(user, test)
@@ -51,7 +51,7 @@ def test_1_success_count(user):
 def test_1_sampling(n_users):
     success_total = 0
     total_total = 0
-    np.random.seed(4)
+    np.random.seed(1)
 
     # Running the test for n_users number of users
     for user in np.random.randint(1, 301, n_users):

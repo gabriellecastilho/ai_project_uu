@@ -99,7 +99,7 @@ def create_transition_matrix(user, main_table):
 
 def recommend_category(user, category, transition_matrix):
 
-    np.random.seed(4)
+    np.random.seed(1)
     # Selecting a new category based on the transition matrix probabilities
     new_category = np.random.choice(transition_matrix["Category_2"][transition_matrix["Category_1"] == category].values,
                                 replace=True,
