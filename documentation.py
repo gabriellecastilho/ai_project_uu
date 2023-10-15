@@ -156,3 +156,5 @@ Returns
 The function returns the recommended category in tuple and the top 5 recommended place
 in dictionary for the specific user.
 """
+
+help(run_program)
